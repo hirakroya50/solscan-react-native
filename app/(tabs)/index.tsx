@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   View,
@@ -75,13 +76,13 @@ const timeAgo = (ts: number) => {
 // Wallet Screen
 // ============================================
 
-export function WalletScreen() {
+export default function WalletScreen() {
   const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [balance, setBalance] = useState<number | null>(null);
   const [tokens, setTokens] = useState<any[]>([]);
   const [txns, setTxns] = useState<any[]>([]);
-
+  const router = useRouter();
   const search = async () => {
     const addr = address.trim();
     if (!addr) return Alert.alert("Enter a wallet address");
@@ -157,16 +158,21 @@ export function WalletScreen() {
 
       {tokens.length > 0 && (
         <>
-          <Text style={s.section}>Tokens ({tokens.length})</Text>
+          <Text style={s.section}>Tokens----------- ({tokens.length})</Text>
           <FlatList
             data={tokens}
             keyExtractor={(t) => t.mint}
             scrollEnabled={false}
             renderItem={({ item }) => (
-              <View style={s.row}>
+              <TouchableOpacity
+                style={s.row}
+                onPress={() => {
+                  router.push(`/token/${item.mint}`);
+                }}
+              >
                 <Text style={s.mint}>{short(item.mint, 6)}</Text>
                 <Text style={s.amount}>{item.amount}</Text>
-              </View>
+              </TouchableOpacity>
             )}
           />
         </>
@@ -192,7 +198,12 @@ export function WalletScreen() {
                     {item.time ? timeAgo(item.time) : "pending"}
                   </Text>
                 </View>
-                <Text style={{ color: item.ok ? "#14F195" : "#EF4444", fontSize: 18 }}>
+                <Text
+                  style={{
+                    color: item.ok ? "#14F195" : "#EF4444",
+                    fontSize: 18,
+                  }}
+                >
                   {item.ok ? "+" : "-"}
                 </Text>
               </TouchableOpacity>
